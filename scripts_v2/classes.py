@@ -105,6 +105,7 @@ class ATCutils:
 
     @staticmethod
     def push_to_confluence(data, apipath, auth):
+        """Description"""
 
         apipath = apipath if apipath[-1] == '/' else apipath+'/'
 
@@ -349,6 +350,7 @@ class ATCutils:
     def calculate_dn_for_dr(
         dict_of_dn_files, dict_of_logsource_fields_from_dr, dr_logsource_dict
     ):
+        """Description"""
 
         dn_list = dict_of_dn_files
         dr_dn = dict_of_logsource_fields_from_dr
@@ -586,6 +588,8 @@ class Enrichments:
 
     @classmethod
     def render_markdown_template(cls):
+        """Description"""
+        
         pass
 
     @classmethod
