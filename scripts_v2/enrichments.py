@@ -11,7 +11,7 @@ import os
 ###############################################################################
 
 class Enrichments:
-    """Class for the Detection Rule entity"""
+    """Class for the Enrichments entity"""
 
     def __init__(self, yaml_file):
         """Init method"""
@@ -31,8 +31,25 @@ class Enrichments:
         self.enrichments_parsed_file = ATCutils.read_yaml_file(yaml_file)
 
         
-    def render_markdown_template(self):
-        """Description"""
+    def render_template(self, template_type):
+        """Description
+        template_type:
+            - "markdown"
+            - "confluence"
+        """
+
+        if template_type not in ["markdown", "confluence"]:
+            raise Exception("Bad template_type. Available values: [\"markdown\", \"confluence\"]")
+
+
+        # Point to the templates directory
+        env = Environment(loader=FileSystemLoader('templates'))
+
+        # Get proper template
+        if template_type == "markdown":
+            template = env.get_template('markdown_enrichment_template.md.j2')
+        elif template_type == "confluence":
+            template = env.get_template('confluence_enrichment_template.html.j2')
         
         pass
 

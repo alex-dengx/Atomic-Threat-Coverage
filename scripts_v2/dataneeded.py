@@ -13,7 +13,7 @@ import os
 class DataNeeded:
     """Class for the Data Needed entity"""
 
-    def __init__(self, yaml_file):
+    def __init__(self, yaml_file, apipath=None, auth=None, space=None):
         """Init method"""
 
         # Init vars (unnecessary?)
@@ -27,8 +27,10 @@ class DataNeeded:
         self.fields = None
         self.sample = None
 
-        # self.fields contains parsed fields obtained from yaml file
-        self.fields = None
+        # self.dn_fields contains parsed fields obtained from yaml file
+        self.dn_fields = None
+
+        self.apipath, self.auth, self.space = apipath, auth, space
 
         self.yaml_file = yaml_file
 
@@ -42,7 +44,7 @@ class DataNeeded:
     def parse_into_fields(self, yaml_file):
         """Description"""
 
-        # self.fields contains parsed fields obtained from yaml file
+        # self.dn_fields contains parsed fields obtained from yaml file
         self.dn_fields = ATCutils.read_yaml_file(yaml_file)
 
         """Fill the fields with values. Put None if key not found"""
@@ -57,16 +59,47 @@ class DataNeeded:
         self.sample = self.dn_fields.get("sample")
 
         
-    def render_markdown_template(self):
-        """Description"""
+    def render_template(self, template_type):
+        """Description
+        template_type:
+            - "markdown"
+            - "confluence"
+        """
+
+        if template_type not in ["markdown", "confluence"]:
+            raise Exception("Bad template_type. Available values:" + 
+                " [\"markdown\", \"confluence\"]")
+
 
         # Point to the templates directory
         env = Environment(loader=FileSystemLoader('templates'))
 
-        # Get DataNeeded template
-        template = env.get_template('markdown_dataneeded_template.md.j2')
+        # Get proper template
+        if template_type == "markdown":
+            template = env\
+                .get_template('markdown_dataneeded_template.md.j2')
 
-        self.dn_fields.update({'description':self.dn_fields.get('description').strip()}) 
+        elif template_type == "confluence":
+            template = env\
+                .get_template('confluence_dataneeded_template.html.j2')
+
+        self.dn_fields.update({'description':self.dn_fields\
+            .get('description').strip()}) 
+
+        logging_policies = self.dn_fields.get("loggingpolicy")
+
+        logging_policies_with_id = [] 
+
+        for lp in logging_policies:
+            if self.apipath and self.auth and self.space:
+                logging_policies_id = str(ATCutils.confluence_get_page_id(
+                    self.apipath, self.auth, self.space, lp))
+            else:
+                logging_policies_id = 0
+            lp = (lp, logging_policies_id)
+            logging_policies_with_id.append(lp)
+
+        self.dn_fields.update({'loggingpolicy':logging_policies_with_id})
 
         self.content = template.render(self.dn_fields)
 

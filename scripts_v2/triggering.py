@@ -7,11 +7,11 @@ from jinja2 import Environment, FileSystemLoader
 import os
 
 ###############################################################################
-############################# Logging Policy ##################################
+############################# Triggering ######################################
 ###############################################################################
 
-class LoggingPolicy:
-    """Class for the Logging Policy entity"""
+class Triggering:
+    """Class for the Triggering entity"""
 
     def __init__(self, yaml_file):
         """Init method"""
@@ -19,7 +19,7 @@ class LoggingPolicy:
         # Init vars
         self.yaml_file = yaml_file
         # The name of the directory containing future markdown LogginPolicy
-        self.parent_title = "Logging_Policies"
+        self.parent_title = "Triggering"
 
         # Init methods
         self.parse_into_fields(self.yaml_file)
@@ -33,7 +33,7 @@ class LoggingPolicy:
 
         
     def render_template(self, template_type):
-        """Description
+        """Description.
         template_type:
             - "markdown"
             - "confluence"
@@ -42,20 +42,28 @@ class LoggingPolicy:
         if template_type not in ["markdown", "confluence"]:
             raise Exception("Bad template_type. Available values: [\"markdown\", \"confluence\"]")
 
-
         # Point to the templates directory
         env = Environment(loader=FileSystemLoader('templates'))
 
         # Get proper template
         if template_type == "markdown":
-            template = env.get_template('markdown_loggingpolicy_template.md.j2')
+            raise Exception("Triggering should be copied from Atomic Red Team atomics folder instead!")
         elif template_type == "confluence":
-            template = env.get_template('confluence_loggingpolicy_template.html.j2')
+            template = env.get_template('confluence_trigger_template_simplified.html.j2')
+
+            base = os.path.basename(self.yaml_file)
+            trigger = os.path.splitext(base)[0]
+            path_md = '../triggering/atomic-red-team/atomics/'+trigger+'/'+trigger+'.md'
+
+            with open(path_md, 'r') as myfile:
+                md_data=myfile.read()
+
+            self.fields.update({'atomic_trigger_md':md_data})
+            self.content = template.render(self.fields)
         
         # get rid of newline to not mess with table in md
-        self.fields.update({'description':self.fields.get('description').strip()}) 
+        #self.fields.update({'description':self.fields.get('description').strip()}) 
 
-        self.content = template.render(self.fields)
 
         return True
 

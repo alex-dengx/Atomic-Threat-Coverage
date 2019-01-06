@@ -23,7 +23,7 @@
                <td class="confluenceTd">
                   {%- if loggingpolicy |length > 1 -%}<ul>{%endif%}
                      {% for policy_name, policy_id in loggingpolicy %}
-                     {%- if loggingpolicy |length > 1 -%}<li>{%endif%}<a href="/wiki/spaces/SOC/pages/{{policy_id}}">{{ policy_name }}</a>{%- if loggingpolicy |length > 1 -%}</li>{%endif%}
+                     {%- if loggingpolicy |length > 1 -%}<li>{%endif%}{%- if policy_id != 0 and policy_id != "0" %}<a href="/wiki/spaces/SOC/pages/{{policy_id}}">{% endif %}{{ policy_name }}{%- if policy_id != 0 and policy_id != "0" %}</a>{% endif %}{%- if loggingpolicy |length > 1 -%}</li>{%endif%}
                      {% endfor %}
                   {%- if loggingpolicy |length > 1 -%}</ul>{%endif%}
                   <br />

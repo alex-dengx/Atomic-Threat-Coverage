@@ -6,6 +6,7 @@ import re
 import json
 import os
 import subprocess
+import requests
 
 from os import listdir
 from os.path import isfile, join
@@ -84,7 +85,7 @@ class ATCutils:
         url = apipath + "content"
         space_page_url = url + '?spaceKey=' + space + '&title=' \
             + title + '&expand=space'
-
+        #print(space_page_url)
         response = requests.request(
            "GET",
            space_page_url,
@@ -93,12 +94,13 @@ class ATCutils:
         )
 
         response = response.json()
+        #print(response)
 
         # Check if response contains proper information and return it if so
-        if response.hasattr(u'results'):
-            if type(response[u'results']) == list:
-                if response[u'results'][0].hasattr(u'id'):
-                    return response[u'results'][0][u'id']
+        if response.get('results'):
+            if isinstance(response['results'], list):
+                if response['results'][0].get('id'):
+                    return response['results'][0][u'id']
 
         # If page not found
         return None
@@ -156,13 +158,14 @@ class ATCutils:
 
         resp = json.loads(response.text)
 
+        #print(resp)
+
         if "data" in resp.keys():
             if "successful" in resp["data"].keys() \
                     and bool(resp["data"]["successful"]):
                 return "Page created"
-
             else:
-                cid = get_page_id(
+                cid = ATCutils.confluence_get_page_id(
                     apipath, auth, data["spacekey"],
                     data["title"]
                     )
@@ -349,7 +352,7 @@ class ATCutils:
     @staticmethod
     def calculate_dn_for_dr(
         dict_of_dn_files, dict_of_logsource_fields_from_dr, dr_logsource_dict
-    ):
+        ):
         """Description"""
 
         dn_list = dict_of_dn_files
