@@ -4,6 +4,8 @@ from atcutils import ATCutils
 
 from jinja2 import Environment, FileSystemLoader
 
+import os
+
 ###############################################################################
 ############################# Data Needed #####################################
 ###############################################################################
@@ -41,18 +43,18 @@ class DataNeeded:
         """Description"""
 
         # self.fields contains parsed fields obtained from yaml file
-        self.fields = ATCutils.read_yaml_file(yaml_file)
+        self.dn_fields = ATCutils.read_yaml_file(yaml_file)
 
         """Fill the fields with values. Put None if key not found"""
-        self.title = self.fields.get("title")
-        self.description = self.fields.get("description")
-        self.loggingpolicy = self.fields.get("loggingpolicy")
-        self.platform = self.fields.get("platform")
-        self.type = self.fields.get("type")
-        self.channel = self.fields.get("channel")
-        self.provider = self.fields.get("provider")
-        self.fields = self.fields.get("fields")
-        self.sample = self.fields.get("sample")
+        self.title = self.dn_fields.get("title")
+        self.description = self.dn_fields.get("description")
+        self.loggingpolicy = self.dn_fields.get("loggingpolicy")
+        self.platform = self.dn_fields.get("platform")
+        self.type = self.dn_fields.get("type")
+        self.channel = self.dn_fields.get("channel")
+        self.provider = self.dn_fields.get("provider")
+        self.fields = self.dn_fields.get("fields")
+        self.sample = self.dn_fields.get("sample")
 
         
     def render_markdown_template(self):
@@ -64,20 +66,20 @@ class DataNeeded:
         # Get DataNeeded template
         template = env.get_template('markdown_dataneeded_template.md.j2')
 
-        self.fields.update({'description':self.fields.get('description').strip()}) 
+        self.dn_fields.update({'description':self.dn_fields.get('description').strip()}) 
 
-        self.content = template.render(self.fields)
+        self.content = template.render(self.dn_fields)
 
         return True
 
         
-    def save_markdown_file(self):
+    def save_markdown_file(self, atc_dir='../Atomic_Threat_Coverage/'):
         """Write content (md template filled with data) to a file"""
 
         base = os.path.basename(self.yaml_file)
         title = os.path.splitext(base)[0]
 
-        file_path = '../Atomic_Threat_Coverage/' + self.parent_title  + "/" + \
+        file_path = atc_dir + self.parent_title  + "/" + \
            title + ".md"
 
         return ATCutils.write_file(file_path, self.content)

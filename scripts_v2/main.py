@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+
+# Import ATC classes
+from dataneeded import DataNeeded
+from detectionrule import DetectionRule
+from enrichments import Enrichments
+from loggingpolicy import LoggingPolicy
+
+# Import ATC Utils
+from atcutils import ATCutils
+
+import argparse
+import glob
+
+class PopulateMarkdown:
+    """Class for populating markdown repo"""
+
+    def __init__(self, lp=False, dn=False, dr=False, en=False, tg=False,
+            auto=False, art_dir=False, atc_dir=False, lp_path=False,
+            dn_path=False, dr_path=False, en_path=False):
+        """Init"""
+
+        # Check if atc_dir provided 
+        if atc_dir:
+            self.atc_dir = atc_dir
+
+        else:
+            self.atc_dir = '../Atomic_Threat_Coverage/'
+
+        # Check if art_dir provided
+        if art_dir:
+            self.art_dir = art_dir
+
+        else:
+            self.art_dir = '../triggering/atomic-red-team/'
+
+        # Main logic
+        if auto:
+            self.logging_policy(lp_path)
+            self.data_needed(dn_path)
+            self.detection_rule(dr_path)
+            self.triggering()
+
+        if lp:
+            self.logging_policy(lp_path)
+        
+        if dn:
+            self.data_needed(dn_path)
+            
+        if dr:
+            self.detection_rule(dr_path)
+
+        if en:
+            self.enrichment(en_path)
+
+        if tg:
+            self.triggering()
+
+    def triggering(self):
+        """Populate triggering"""
+
+        if self.art_dir and self.atc_dir:
+            r = ATCutils.populate_tg_markdown(art_dir=self.art_dir, 
+                atc_dir=self.atc_dir)
+
+        elif self.art_dir:
+            r = ATCutils.populate_tg_markdown(art_dir=self.art_dir)
+
+        elif self.atc_dir:
+            r = ATCutils.populate_tg_markdown(atc_dir=self.atc_dir)
+
+        else:
+            r = ATCutils.populate_tg_markdown()
+
+        return r
+
+    def logging_policy(self, lp_path):
+        """Desc"""
+
+        if lp_path:
+            lp_list = glob.glob(lp_path + '*.yml')
+        else:
+            lp_list = glob.glob('../loggingpolicies/*.yml')
+
+        for lp_file in lp_list:
+            try:
+                lp = LoggingPolicy(lp_file)
+                lp.render_markdown_template()
+                lp.save_markdown_file(atc_dir=self.atc_dir)
+            except:
+                print(lp_file + " failed")
+
+    def data_needed(self, dn_path):
+        """Desc"""
+        
+        if dn_path:
+            dn_list = glob.glob(dn_path + '*.yml')
+        else:
+            dn_list = glob.glob('../dataneeded/*.yml')
+
+        for dn_file in dn_list:
+            try:
+                dn = DataNeeded(dn_file)
+                dn.render_markdown_template()
+                dn.save_markdown_file(atc_dir=self.atc_dir)
+            except:
+                print(dn_file + " failed")
+
+    def detection_rule(self, dr_path):
+        """Desc"""
+        
+        if dr_path:
+            dr_list = glob.glob(dr_path + '*.yml')
+        else:
+            dr_list = glob.glob('../detectionrules/*.yml')
+
+        for dr_file in dr_list:
+            try:
+                dr = DetectionRule(dr_file)
+                dr.render_markdown_template()
+                dr.save_markdown_file(atc_dir=self.atc_dir)
+            except:
+                print(dr_file + " failed")
+
+    def enrichment(self, en_path):
+        """Nothing here yet"""
+        
+        pass
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Main function of ATC. ' + \
+        'This function is handling generating markdown files and/or ' + \
+        'populating confluence')
+
+    # Mutually exclusive group for chosing the output of the script
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument('-C', '--confluence', action='store_true',
+                        help='Set the output to be a Confluence')
+    group.add_argument('-M', '--markdown', action='store_true',
+                        help='Set the output to be markdown files')
+
+    # Mutually exclusive group for chosing type of data
+    group2 = parser.add_mutually_exclusive_group(required=True)
+
+    group2.add_argument('-A', '--auto', action='store_true',
+                        help='Build full repository')
+    group2.add_argument('-LP', '--loggingpolicy', action='store_true',
+                        help='Build logging policy part')
+    group2.add_argument('-DN', '--dataneeded', action='store_true',
+                        help='Build data needed part')
+    group2.add_argument('-DR', '--detectionrule', action='store_true',
+                        help='Build detection rule part')
+    group2.add_argument('-EN', '--enrichment', action='store_true',
+                        help='Build enrichment part')
+    group2.add_argument('-TG', '--triggering', action='store_true',
+                        help='Build triggering part')
+
+
+    args = parser.parse_args()
+
+    if args.markdown:
+        PopulateMarkdown(auto=args.auto, lp=args.loggingpolicy, 
+            dn=args.dataneeded, dr=args.detectionrule,
+            tg=args.triggering, en=args.enrichment)
+    elif args.confluence:
+        print("Not supported yet")

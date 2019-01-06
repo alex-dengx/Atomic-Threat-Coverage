@@ -4,6 +4,10 @@ from atcutils import ATCutils
 
 from jinja2 import Environment, FileSystemLoader
 
+import os
+import subprocess
+import re
+
 ###############################################################################
 ############################# Detection Rule ##################################
 ###############################################################################
@@ -19,6 +23,20 @@ class DetectionRule:
 
         # The name of the directory containing future markdown DetectionRules
         self.parent_title = "Detection_Rules"
+
+        self.ta_mapping = {
+          "attack.initial_access": ("Initial Access","TA0001"),
+          "attack.execution": ("Execution","TA0002"),
+          "attack.persistence": ("Persistence","TA0003"),
+          "attack.privilege_escalation": ("Privilege Escalation","TA0004"),
+          "attack.defense_evasion": ("Defense Evasion","TA0005"),
+          "attack.credential_access": ("Credential Access","TA0006"),
+          "attack.discovery": ("Discovery","TA0007"),
+          "attack.lateral_movement": ("Lateral Movement","TA0008"),
+          "attack.collection": ("Collection","TA0009"),
+          "attack.exfiltration": ("Exfiltration","TA0010"),
+          "attack.command_and_control": ("Command and Control","TA0011"),
+        }
 
         # Init methods
         self.parse_into_fields()
@@ -53,11 +71,11 @@ class DetectionRule:
         for query in queries:
             # prepare command to execute from shell
             cmd = "../detectionrules/sigma/tools/sigmac -t " + \
-                output + " --ignore-backend-errors " + self.yaml_file
+                query + " --ignore-backend-errors " + self.yaml_file
 
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
 
-            (query, err) = p.communicate()
+            (query2, err) = p.communicate()
 
             # Wait for date to terminate. Get return returncode
             p_status = p.wait()
@@ -65,10 +83,10 @@ class DetectionRule:
             """ Had to remove '-' due to problems with Jinja2 variable naming,
             e.g es-qs throws error 'no es variable'
             """
-            alert.update({output.replace("-", ""):str(query)[2:-3]})
+            self.fields.update({query.replace("-", ""):str(query2)[2:-3]})
 
         # Data Needed
-        data_needed = APTutils.main_dn_calculatoin_func(self.yaml_file)
+        data_needed = ATCutils.main_dn_calculatoin_func(self.yaml_file)
 
         # if there is only 1 element in the list, print it as a string, without quotes
         if len(data_needed) == 1:
@@ -84,7 +102,7 @@ class DetectionRule:
 
         for tag in self.fields.get('tags'):
             if tactic_re.match(tag):
-                tactic.append(ta_mapping.get(tag))
+                tactic.append(self.ta_mapping.get(tag))
             elif technique_re.match(tag):
                 technique.append(tag.upper()[7:])
             else:
@@ -102,7 +120,7 @@ class DetectionRule:
                 trigger + '.yaml'
             
             try:
-                trigger_yaml = read_yaml_file(path)
+                trigger_yaml = ATCutils.read_yaml_file(path)
 
                 triggers.append(trigger)
 
@@ -122,13 +140,13 @@ class DetectionRule:
         return True
 
         
-    def save_markdown_file(self):
+    def save_markdown_file(self, atc_dir='../Atomic_Threat_Coverage/'):
         """Write content (md template filled with data) to a file"""
 
         base = os.path.basename(self.yaml_file)
         title = os.path.splitext(base)[0]
 
-        file_path = '../Atomic_Threat_Coverage/' + self.parent_title  + "/" + \
+        file_path = atc_dir + self.parent_title  + "/" + \
            title + ".md"
 
         # Should return True 

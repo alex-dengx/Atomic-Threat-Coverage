@@ -55,9 +55,9 @@ class ATCutils:
         """Load multiple yamls into list"""
 
         yamls = [
-            join(path, f) for f in listdir(path) 
-            if isfile(join(path, f)) 
-            if f.endswith('.yaml') 
+            join(path, f) for f in listdir(path) \
+            if isfile(join(path, f)) \
+            if f.endswith('.yaml') \
             or f.endswith('.yml')
             ]
 
@@ -65,7 +65,7 @@ class ATCutils:
 
         for yaml in yamls:
             try:
-                result.append(read_yaml_file(yaml))
+                result.append(ATCutils.read_yaml_file(yaml))
 
             except ScannerError:
                 raise ScannerError('yaml is bad! %s' % yaml)
@@ -261,11 +261,11 @@ class ATCutils:
     def main_dn_calculatoin_func(dr_file_path):
         """you need to execute this function to calculate DN for DR file"""
 
-        dn_list = APTutils.load_yamls('../dataneeded')
+        dn_list = ATCutils.load_yamls('../dataneeded')
 
         # detectionrule \
         # = read_yaml_file("../detectionrules/sigma_win_susp_run_locations.yml")
-        detectionrule = APTutils.read_yaml_file(dr_file_path)
+        detectionrule = ATCutils.read_yaml_file(dr_file_path)
 
         no_extra_logsources = bool
 
@@ -299,7 +299,7 @@ class ATCutils:
               if "selection" in str(_field):
                 dr_dn = detectionrule['detection'][_field]
                 final_list.append(
-                    APTutils.calculate_dn_for_dr(
+                    ATCutils.calculate_dn_for_dr(
                         dn_list, dr_dn, logsource
                     )
                 )       
@@ -336,7 +336,7 @@ class ATCutils:
                             dr_dn.update([(field, 'placeholder')])
 
                             result_of_dn_caclulation \
-                                = APTutils.calculate_dn_for_dr(
+                                = ATCutils.calculate_dn_for_dr(
                                     dn_list, dr_dn, logsource
                                     )
 
@@ -383,7 +383,7 @@ class ATCutils:
 
                     # divided into two lines due to char limit
                     proper_logsource \
-                        = APTutils.sigma_lgsrc_fields_to_names(logsource)
+                        = ATCutils.sigma_lgsrc_fields_to_names(logsource)
 
                     amount_of_fields_in_logsource = len([*proper_logsource])
                     y = dn
@@ -428,12 +428,14 @@ class ATCutils:
 
         return True
 
+    @staticmethod
+    def populate_tg_markdown(art_dir='../triggering/atomic-red-team/',
+            atc_dir='../Atomic_Threat_Coverage/'):
+        cmd = 'find \'%satomics/\' -name "T*.md" -exec cp {} \'%sTriggering/\' \;' % \
+            (art_dir, atc_dir)
+        if subprocess.run(cmd, shell=True, check=True).returncode == 0:
+            return True
+        else:
+            return False
 
-###############################################################################
-############################# If exectued #####################################
-###############################################################################
 
-if __name__ == "__main__":
-    """If file is executed"""
-    pass
-    #DataNeeded("../dataneeded/DN_0001_windows_process_creation_4688.yml")
