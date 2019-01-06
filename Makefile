@@ -15,15 +15,15 @@ setup:
 	
 setup_confluence:
 	@echo "Setting up confluecne"
-	python3 scripts/init_confluence.py
+	python3 scripts_v2/init_confluence.py
 
 setup_markdown:
-	@echo "Setting up markdown2"
-	@cd scripts_v2 && bash init_markdown.sh
+	@echo "Setting up markdown"
+	@cd scripts && bash init_markdown.sh
 
 push_to_confuence:
 	@echo "Pushing data to confluecne"
-	@cd scripts && python3 populate_confluence.py
+	@cd scripts_v2 && python3 main.py -C -A
 
 push_to_markdown:
 	@echo "Pushing data to markdown"
