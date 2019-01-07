@@ -1,10 +1,8 @@
 .PHONY: all  setup update_sigma generate_queries clean push_to_markdown
 
-all: setup setup_markdown2 push_to_markdown2
-all2: setup setup_confluence setup_markdown push_to_confuence push_to_markdown create_analytics_csv 
+all: setup setup_confluence setup_markdown push_to_confuence push_to_markdown create_analytics_csv 
 update: push_to_confuence create_analytics_csv push_to_markdown
 markdown: setup_markdown push_to_markdown
-markdown2: setup_markdown2 push_to_markdown2
 confluecne: setup_confluence push_to_confuence
 analytics: create_analytics_csv
 
@@ -15,7 +13,7 @@ setup:
 	
 setup_confluence:
 	@echo "Setting up confluecne"
-	python3 scripts_v2/init_confluence.py
+	python3 scripts/init_confluence.py
 
 setup_markdown:
 	@echo "Setting up markdown"
@@ -23,11 +21,12 @@ setup_markdown:
 
 push_to_confuence:
 	@echo "Pushing data to confluecne"
-	@cd scripts_v2 && python3 main.py -C -A
+	@cd scripts && python3 populate_confluence.py
 
 push_to_markdown:
 	@echo "Pushing data to markdown"
-	@cd scripts_v2 && python3 main.py -M -A
+	@cd scripts && python3 populate_markdown.py
+	@cd scripts && bash populate_tg_markdown.sh
 
 create_analytics_csv:
 	@echo "Creating analytics.csv"
