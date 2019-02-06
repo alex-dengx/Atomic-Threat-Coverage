@@ -10,7 +10,7 @@ tags:
     - attack.persistence
     - attack.t1100
 detection:
-    selection:
+    selection1:
         CommandLine: 
             - '*\APPCMD.EXE install module /name:*'
     condition: selection

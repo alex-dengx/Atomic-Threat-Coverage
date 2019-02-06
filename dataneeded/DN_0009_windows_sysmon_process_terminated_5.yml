@@ -40,7 +40,7 @@ sample: |
         <Data Name="ProcessId">12684</Data>
         <Data Name="Image">C:\Program Files (x86)\Google\Chrome\Application\chrome.exe</Data>
     </EventData>
-</Event>
+  </Event>
 
 
 

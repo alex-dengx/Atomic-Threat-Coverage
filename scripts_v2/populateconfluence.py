@@ -16,12 +16,13 @@ import sys
 import traceback
 import os
 
+
 class PopulateConfluence:
     """Desc"""
 
     def __init__(self, auth, lp=False, dn=False, dr=False, en=False, tg=False,
-            auto=False, art_dir=False, atc_dir=False, lp_path=False,
-            dn_path=False, dr_path=False, en_path=False, tg_path=False):
+                 auto=False, art_dir=False, atc_dir=False, lp_path=False,
+                 dn_path=False, dr_path=False, en_path=False, tg_path=False):
         """Desc"""
 
         self.auth = auth
@@ -31,12 +32,13 @@ class PopulateConfluence:
         self.space = ATCconfig.get('confluence_space_name')
 
         # Assign default if there is no space specified
-        if not self.space: self.space = "SOC"
+        if not self.space:
+            self.space = "SOC"
 
         self.apipath = ATCconfig.get('confluence_rest_api_url')
         self.root_name = ATCconfig.get('confluence_name_of_root_directory')
 
-        # Check if atc_dir provided 
+        # Check if atc_dir provided
         if atc_dir:
             self.atc_dir = atc_dir
 
@@ -59,10 +61,10 @@ class PopulateConfluence:
 
         if lp:
             self.logging_policy(lp_path)
-        
+
         if dn:
             self.data_needed(dn_path)
-            
+
         if dr:
             self.detection_rule(dr_path)
 
@@ -75,11 +77,12 @@ class PopulateConfluence:
     def triggering(self, tg_path):
         """Populate triggering"""
 
+        print("Populating Triggering..")
         if tg_path:
             tg_list = glob.glob(tg_path + '*.yml')
         else:
-            tg_list = glob.glob('../triggering/atomic-red-team/' + 
-                'atomics/T*/*.yaml')
+            tg_list = glob.glob('../triggering/atomic-red-team/' +
+                                'atomics/T*/*.yaml')
 
         for tg_file in tg_list:
             try:
@@ -94,19 +97,20 @@ class PopulateConfluence:
                 }
 
                 ATCutils.push_to_confluence(confluence_data, self.apipath,
-                    self.auth)
+                                            self.auth)
 
             except Exception as err:
                 print(tg_file + " failed")
                 print("Err message: %s" % err)
-                print('-'*60)
+                print('-' * 60)
                 traceback.print_exc(file=sys.stdout)
-                print('-'*60)
-
+                print('-' * 60)
+        print("Triggering populated!")
 
     def logging_policy(self, lp_path):
         """Desc"""
 
+        print("Populating Logging Policies..")
         if lp_path:
             lp_list = glob.glob(lp_path + '*.yml')
         else:
@@ -120,20 +124,22 @@ class PopulateConfluence:
                     "title": lp.fields["title"],
                     "spacekey": self.space,
                     "parentid": str(ATCutils.confluence_get_page_id(
-                        self.apipath, self.auth, self.space, 
+                        self.apipath, self.auth, self.space,
                         "Logging+Policies")),
                     "confluencecontent": lp.content,
                 }
 
                 ATCutils.push_to_confluence(confluence_data, self.apipath,
-                    self.auth)
+                                            self.auth)
             except Exception as err:
                 print(lp_file + " failed")
                 print("Err message: %s" % err)
+        print("Logging Policies populated!")
 
     def data_needed(self, dn_path):
         """Desc"""
-        
+
+        print("Populating Data Needed..")
         if dn_path:
             dn_list = glob.glob(dn_path + '*.yml')
         else:
@@ -142,7 +148,7 @@ class PopulateConfluence:
         for dn_file in dn_list:
             try:
                 dn = DataNeeded(dn_file, apipath=self.apipath, auth=self.auth,
-                space=self.space)
+                                space=self.space)
                 dn.render_template("confluence")
                 confluence_data = {
                     "title": dn.dn_fields["title"],
@@ -153,18 +159,20 @@ class PopulateConfluence:
                 }
 
                 ATCutils.push_to_confluence(confluence_data, self.apipath,
-                    self.auth)
+                                            self.auth)
 
             except Exception as err:
                 print(dn_file + " failed")
                 print("Err message: %s" % err)
-                print('-'*60)
+                print('-' * 60)
                 traceback.print_exc(file=sys.stdout)
-                print('-'*60)
+                print('-' * 60)
+        print("Data Needed populated!")
 
     def detection_rule(self, dr_path):
         """Desc"""
-        
+
+        print("Populating Detection Rules..")
         if dr_path:
             dr_list = glob.glob(dr_path + '*.yml')
         else:
@@ -172,9 +180,9 @@ class PopulateConfluence:
 
         for dr_file in dr_list:
             try:
-                dr = DetectionRule(dr_file, apipath=self.apipath, 
-                    auth=self.auth, space=self.space
-                    )
+                dr = DetectionRule(dr_file, apipath=self.apipath,
+                                   auth=self.auth, space=self.space
+                                   )
                 dr.render_template("confluence")
 
                 base = os.path.basename(dr_file)
@@ -183,20 +191,21 @@ class PopulateConfluence:
                     "title": base,
                     "spacekey": self.space,
                     "parentid": str(ATCutils.confluence_get_page_id(
-                        self.apipath, self.auth, self.space, "Detection+Rules")),
-                    "confluencecontent": dr.content,
+                        self.apipath, self.auth, self.space,
+                        "Detection+Rules")), "confluencecontent": dr.content,
                 }
 
                 ATCutils.push_to_confluence(confluence_data, self.apipath,
-                    self.auth)
+                                            self.auth)
             except Exception as err:
                 print(dr_file + " failed")
                 print("Err message: %s" % err)
-                print('-'*60)
+                print('-' * 60)
                 traceback.print_exc(file=sys.stdout)
-                print('-'*60)
+                print('-' * 60)
+        print("Detection Rules populated!")
 
     def enrichment(self, en_path):
         """Nothing here yet"""
-        
+
         pass

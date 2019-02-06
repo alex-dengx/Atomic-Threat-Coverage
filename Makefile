@@ -5,7 +5,7 @@ all2: setup setup_confluence setup_markdown push_to_confuence push_to_markdown c
 update: push_to_confuence create_analytics_csv push_to_markdown
 markdown: setup_markdown push_to_markdown
 markdown2: setup_markdown2 push_to_markdown2
-confluecne: setup_confluence push_to_confuence
+confluence: setup_confluence push_to_confuence
 analytics: create_analytics_csv
 
 setup:
@@ -15,13 +15,13 @@ setup:
 	
 setup_confluence:
 	@echo "Setting up confluecne"
-	python3 scripts_v2/init_confluence.py
+	@cd scripts_v2 && python3 init_confluence.py
 
 setup_markdown:
 	@echo "Setting up markdown"
 	@cd scripts && bash init_markdown.sh
 
-push_to_confuence:
+push_to_confluence:
 	@echo "Pushing data to confluecne"
 	@cd scripts_v2 && python3 main.py -C -A
 

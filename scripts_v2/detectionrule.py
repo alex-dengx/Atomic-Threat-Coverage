@@ -8,6 +8,8 @@ import os
 import subprocess
 import re
 
+from pprint import pprint
+
 ###############################################################################
 ############################# Detection Rule ##################################
 ###############################################################################
@@ -102,10 +104,10 @@ class DetectionRule:
             data_needed = ATCutils.main_dn_calculatoin_func(self.yaml_file)
 
             # if there is only 1 element in the list, print it as a string, without quotes
-            if len(data_needed) == 1:
-                [data_needed] = data_needed
+            # if isistance(data_needed, list) and len(data_needed) == 1:
+            #     [data_needed] = data_needed
 
-            print("dataneeded:", data_needed)
+            print("%s || Dataneeded: \n%s\n" %(self.fields.get("title"), data_needed))
 
             self.fields.update({'data_needed':data_needed})
 
@@ -169,6 +171,7 @@ class DetectionRule:
 
             ###Data Needed
             data_needed = ATCutils.main_dn_calculatoin_func(self.yaml_file)
+            pprint(data_needed)
             data_needed_with_id = []
 
             if len(data_needed) == 1:
