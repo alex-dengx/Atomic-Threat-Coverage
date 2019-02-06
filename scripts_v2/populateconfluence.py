@@ -3,7 +3,7 @@
 # Import ATC classes
 from dataneeded import DataNeeded
 from detectionrule import DetectionRule
-from enrichments import Enrichments
+# from enrichments import Enrichments
 from loggingpolicy import LoggingPolicy
 from triggering import Triggering
 

@@ -3,14 +3,17 @@ from atcutils import ATCutils
 from requests.auth import HTTPBasicAuth
 import getpass
 
+
 def main(c_auth=None):
 
     try:
         ATCconfig = ATCutils.read_yaml_file("config.yml")
         confluence_space_name = ATCconfig.get('confluence_space_name')
-        confluence_space_home_page_name = ATCconfig.get('confluence_space_home_page_name')
+        confluence_space_home_page_name = ATCconfig.get(
+            'confluence_space_home_page_name')
         confluence_rest_api_url = ATCconfig.get('confluence_rest_api_url')
-        confluence_name_of_root_directory = ATCconfig.get('confluence_name_of_root_directory')
+        confluence_name_of_root_directory = ATCconfig.get(
+            'confluence_name_of_root_directory')
 
     except Exception as e:
         raise e
@@ -24,33 +27,40 @@ def main(c_auth=None):
         auth = c_auth
 
     url = confluence_rest_api_url
-    content=""
+    content = ""
 
     print("Creating ATC page..")
-    #print(str(ATCutils.confluence_get_page_id(url, auth, confluence_space_name, confluence_space_home_page_name)))
+    # print(str(ATCutils.confluence_get_page_id(url,
+    # auth, confluence_space_name, confluence_space_home_page_name)))
     data = {
         "title": confluence_name_of_root_directory,
         "spacekey": confluence_space_name,
-        "parentid": str(ATCutils.confluence_get_page_id(url, auth, confluence_space_name, confluence_space_home_page_name)),
+        "parentid": str(ATCutils.confluence_get_page_id(
+            url, auth, confluence_space_name,
+            confluence_space_home_page_name)),
         "confluencecontent": content,
     }
 
-    #print(push_to_confluence(data, url, auth))
+    # print(push_to_confluence(data, url, auth))
     ATCutils.push_to_confluence(data, url, auth)
-    
-    spaces = ["Detection Rules", "Logging Policies", "Data Needed", "Triggering"]
+
+    spaces = ["Detection Rules", "Logging Policies",
+              "Data Needed", "Triggering"]
 
     for space in spaces:
         print("Creating %s.." % space)
         data = {
-        "title": space,
-        "spacekey": confluence_space_name,
-        "parentid": str(ATCutils.confluence_get_page_id(url, auth, confluence_space_name, confluence_name_of_root_directory)),
-        "confluencecontent": content,
+            "title": space,
+            "spacekey": confluence_space_name,
+            "parentid": str(ATCutils.confluence_get_page_id(
+                url, auth, confluence_space_name,
+                confluence_name_of_root_directory)),
+            "confluencecontent": content,
         }
-        #print(push_to_confluence(data, url, auth))
+        # print(push_to_confluence(data, url, auth))
         ATCutils.push_to_confluence(data, url, auth)
     print("Done!")
+
 
 if __name__ == "__main__":
     main()

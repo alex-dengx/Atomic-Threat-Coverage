@@ -10,6 +10,7 @@ import os
 ############################# Data Needed #####################################
 ###############################################################################
 
+
 class DataNeeded:
     """Class for the Data Needed entity"""
 
@@ -40,7 +41,6 @@ class DataNeeded:
         # Init methods
         self.parse_into_fields(self.yaml_file)
 
-        
     def parse_into_fields(self, yaml_file):
         """Description"""
 
@@ -58,7 +58,6 @@ class DataNeeded:
         self.fields = self.dn_fields.get("fields")
         self.sample = self.dn_fields.get("sample")
 
-        
     def render_template(self, template_type):
         """Description
         template_type:
@@ -67,9 +66,8 @@ class DataNeeded:
         """
 
         if template_type not in ["markdown", "confluence"]:
-            raise Exception("Bad template_type. Available values:" + 
-                " [\"markdown\", \"confluence\"]")
-
+            raise Exception("Bad template_type. Available values:" + \
+                            " [\"markdown\", \"confluence\"]")
 
         # Point to the templates directory
         env = Environment(loader=FileSystemLoader('templates'))
@@ -82,11 +80,11 @@ class DataNeeded:
             logging_policies = self.dn_fields.get("loggingpolicy")
 
             if isinstance(logging_policies, str):
-                logging_policies = [ logging_policies ]
+                logging_policies = [logging_policies]
 
             refs = self.dn_fields.get("references")
 
-            self.dn_fields.update({'loggingpolicy':logging_policies})
+            self.dn_fields.update({'loggingpolicy': logging_policies})
 
             if isinstance(refs, str):
                 self.dn_fields.update({'references': [refs]})
@@ -95,12 +93,12 @@ class DataNeeded:
             template = env\
                 .get_template('confluence_dataneeded_template.html.j2')
 
-            self.dn_fields.update({'description':self.dn_fields\
-                .get('description').strip()}) 
+            self.dn_fields.update({'description': self.dn_fields
+                                   .get('description').strip()})
 
             logging_policies = self.dn_fields.get("loggingpolicy")
 
-            logging_policies_with_id = [] 
+            logging_policies_with_id = []
 
             for lp in logging_policies:
                 if self.apipath and self.auth and self.space:
@@ -119,20 +117,19 @@ class DataNeeded:
             if isinstance(refs, str):
                 self.dn_fields.update({'references': [refs]})
 
-            self.dn_fields.update({'loggingpolicy':logging_policies_with_id})
+            self.dn_fields.update({'loggingpolicy': logging_policies_with_id})
 
         self.content = template.render(self.dn_fields)
 
         return True
 
-        
     def save_markdown_file(self, atc_dir='../Atomic_Threat_Coverage/'):
         """Write content (md template filled with data) to a file"""
 
         base = os.path.basename(self.yaml_file)
         title = os.path.splitext(base)[0]
 
-        file_path = atc_dir + self.parent_title  + "/" + \
-           title + ".md"
+        file_path = atc_dir + self.parent_title + "/" + \
+            title + ".md"
 
         return ATCutils.write_file(file_path, self.content)

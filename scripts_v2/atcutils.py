@@ -59,11 +59,11 @@ class ATCutils:
         """Load multiple yamls into list"""
 
         yamls = [
-                 join(path, f) for f in listdir(path) \
-                 if isfile(join(path, f)) \
-                 if f.endswith('.yaml') \
-                 or f.endswith('.yml')
-                ]
+            join(path, f) for f in listdir(path)
+            if isfile(join(path, f))
+            if f.endswith('.yaml')
+            or f.endswith('.yml')
+        ]
 
         result = []
 
@@ -79,25 +79,25 @@ class ATCutils:
     @staticmethod
     def confluence_get_page_id(apipath, auth, space, title):
         """Get confluence page ID based on title and space"""
-        
+
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json"
-            }
+        }
 
         url = apipath + "content"
         space_page_url = url + '?spaceKey=' + space + '&title=' \
             + title + '&expand=space'
-        #print(space_page_url)
+        # print(space_page_url)
         response = requests.request(
-           "GET",
-           space_page_url,
-           headers=headers,
-           auth=auth
+            "GET",
+            space_page_url,
+            headers=headers,
+            auth=auth
         )
 
         response = response.json()
-        #print(response)
+        # print(response)
 
         # Check if response contains proper information and return it if so
         if response.get('results'):
@@ -112,14 +112,14 @@ class ATCutils:
     def push_to_confluence(data, apipath, auth):
         """Description"""
 
-        apipath = apipath if apipath[-1] == '/' else apipath+'/'
+        apipath = apipath if apipath[-1] == '/' else apipath + '/'
 
         url = apipath + "content"
 
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json"
-            }
+        }
 
         alldata = True
         for i in ["title", "spacekey", "parentid", "confluencecontent"]:
@@ -130,24 +130,24 @@ class ATCutils:
                             "to push the content to confluence")
 
         dict_payload = {
-            "title": "%s" % data["title"], # req
-            "type": "page", # req
-            "space": { # req
+            "title": "%s" % data["title"],  # req
+            "type": "page",  # req
+            "space": {  # req
                 "key": "%s" % data["spacekey"]
-                },
+            },
             "status": "current",
             "ancestors": [
                 {
-                  "id": "%s" % data["parentid"] # parent id
+                    "id": "%s" % data["parentid"]  # parent id
                 }
-                ],
-            "body": { # req
+            ],
+            "body": {  # req
                 "storage": {
-                    "value": "%s" % data["confluencecontent"], 
+                    "value": "%s" % data["confluencecontent"],
                     "representation": "storage"
-                    }
                 }
             }
+        }
 
         payload = json.dumps(dict_payload)
 
@@ -157,11 +157,11 @@ class ATCutils:
             data=payload,
             headers=headers,
             auth=auth
-            )
+        )
 
         resp = json.loads(response.text)
 
-        #print(resp)
+        # print(resp)
 
         if "data" in resp.keys():
             if "successful" in resp["data"].keys() \
@@ -171,7 +171,7 @@ class ATCutils:
                 cid = ATCutils.confluence_get_page_id(
                     apipath, auth, data["spacekey"],
                     data["title"]
-                    )
+                )
 
             response = requests.request(
                 "GET",
@@ -179,7 +179,7 @@ class ATCutils:
                 data=payload,
                 headers=headers,
                 auth=auth
-                )
+            )
 
             resp = json.loads(response.text)
 
@@ -194,7 +194,7 @@ class ATCutils:
                 data=payload,
                 headers=headers,
                 auth=auth
-                )
+            )
 
             resp = json.loads(response.text)
 
@@ -204,7 +204,7 @@ class ATCutils:
                 if int(item["number"]) > i:
                     i = int(item["number"])
 
-            i += 1 #update by one
+            i += 1  # update by one
 
             dict_payload["version"] = {"number": "%s" % str(i)}
             payload = json.dumps(dict_payload)
@@ -215,7 +215,7 @@ class ATCutils:
                 data=payload,
                 headers=headers,
                 auth=auth
-                )
+            )
 
             return "Page updated"
 
@@ -237,7 +237,7 @@ class ATCutils:
             'product': 'platform',
             'windows': 'Windows',
             'service': 'channel'
-            }
+        }
 
         sigma_keys = [*sigma_to_real_world_mapping]
 
@@ -248,30 +248,30 @@ class ATCutils:
                 if val in sigma_keys:
                     # Transalte both key and value
                     proper_logsource_dict.update([
-                        (sigma_to_real_world_mapping[key], 
+                        (sigma_to_real_world_mapping[key],
                          sigma_to_real_world_mapping[val])
-                        ])
+                    ])
                 else:
                     # Translate only key
                     proper_logsource_dict.update([
                         (sigma_to_real_world_mapping[key], val)
-                        ])
+                    ])
             else:
                 if val in sigma_keys:
                     # Translate only value
                     proper_logsource_dict.update([
                         (key, sigma_to_real_world_mapping[val])
-                        ])
+                    ])
                 else:
                     # Don't translate anything
                     proper_logsource_dict.update([
                         (key, val)
-                        ])
+                    ])
 
-        # @yugoslavskiy: I am not sure about this 
+        # @yugoslavskiy: I am not sure about this
         # list(proper_logsource_dict.items()) loop. but it works -.-
         # I was trying to avoid error "dictionary changed size during iteration"
-        # which was triggered because of iteration 
+        # which was triggered because of iteration
         # over something that we are changing
 
         """Old Code
@@ -349,9 +349,9 @@ class ATCutils:
                     """
 
                     final_list += ATCutils.calculate_dn_for_dr(
-                                      dn_list, dr_dn, logsource
-                                  )  
-                     
+                        dn_list, dr_dn, logsource
+                    )
+
             return list(set(final_list))
 
         else:
@@ -373,7 +373,7 @@ class ATCutils:
             for addition in detectionrule['additions']:
 
                 logsource_optional_fields = [
-                'category', 'product', 'service', 'definition',
+                    'category', 'product', 'service', 'definition',
                 ]
 
                 _temp_list = []
@@ -391,20 +391,19 @@ class ATCutils:
                 """
 
                 for _field in addition['detection']:
-                # if it is selection field
+                    # if it is selection field
                     dr_dn = {}
                     if not _field in ["condition", "timeframe"]:
 
                         dr_dn = addition['detection'][_field]
-                        #dr_dn.update(logsource)
+                        # dr_dn.update(logsource)
 
                         for field in common_fields:
                             dr_dn.update([(field, 'placeholder')])
 
                             final_list += ATCutils.calculate_dn_for_dr(
-                                              dn_list, dr_dn, logsource
-                                          )
-                        
+                                dn_list, dr_dn, logsource
+                            )
 
         return list(set(final_list))
 
@@ -424,19 +423,19 @@ class ATCutils:
 
         for dn in dn_list:
             # Will create a list of keys from Detection Rule fields dictionary
-            list_of_DR_fields = [*dr_dn] 
+            list_of_DR_fields = [*dr_dn]
             list_of_DN_fields = dn['fields']
             amount_of_fields_in_DR = len(list_of_DR_fields)
 
             amount_of_intersections_betw_DR_and_DN_fields = len(
                 set(list_of_DR_fields).intersection(list(set(list_of_DN_fields)
-                )))
+                                                         )))
 
             if amount_of_intersections_betw_DR_and_DN_fields \
                     == amount_of_fields_in_DR:
                 # if they are equal, do..
                 list_of_DN_matched_by_fields.append(dn)
-                
+
         for matched_dn in list_of_DN_matched_by_fields:
 
             # if dn['title'] == matched_dn:
@@ -451,7 +450,7 @@ class ATCutils:
             # превозмогая трудности!
             shared_items \
                 = {k: x[k] for k in x if k in y and x[k] == y[k]}
-            #bp()
+            # bp()
             if len(shared_items) == amount_of_fields_in_logsource:
 
                 # divided into two lines due to char limit
@@ -464,7 +463,7 @@ class ATCutils:
             for dn in list_of_DN_matched_by_fields_and_logsource:
 
                 try:
-                    eventID_from_title = int(dn['title'].split("_")[2])
+                    eventID_from_title = str(int(dn['title'].split("_")[2]))
                 except ValueError:
                     eventID_from_title = "None"
 
@@ -493,12 +492,10 @@ class ATCutils:
 
     @staticmethod
     def populate_tg_markdown(art_dir='../triggering/atomic-red-team/',
-            atc_dir='../Atomic_Threat_Coverage/'):
+                             atc_dir='../Atomic_Threat_Coverage/'):
         cmd = ('find \'%satomics/\' -name "T*.md" -exec' +
-              ' cp {} \'%sTriggering/\' \;') % (art_dir, atc_dir)
+               ' cp {} \'%sTriggering/\' \;') % (art_dir, atc_dir)
         if subprocess.run(cmd, shell=True, check=True).returncode == 0:
             return True
         else:
             return False
-
-
