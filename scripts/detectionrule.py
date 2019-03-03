@@ -2,7 +2,7 @@
 
 from atcutils import ATCutils
 from attack_mapping import te_mapping, ta_mapping
-
+from atcentity import ATCEntity
 from jinja2 import Environment, FileSystemLoader
 
 import os
@@ -14,15 +14,15 @@ from pdb import set_trace as bp
 # ########################### Detection Rule ################################ #
 # ########################################################################### #
 
-ATCconfig = ATCutils.read_yaml_file("config.yml")
+ATCconfig = ATCEntity.ATCconfig
 
 
-class DetectionRule:
+class DetectionRule(ATCEntity):
     """Class for the Detection Rule entity"""
 
     def __init__(self, yaml_file, apipath=None, auth=None, space=None):
         """Init method"""
-
+        super(ATCEntity, self).__init__()
         # Init vars
         self.yaml_file = yaml_file
 
@@ -34,13 +34,8 @@ class DetectionRule:
         self.space = space
 
         # Init methods
-        self.parse_into_fields()
+        self.parse_into_fields(yaml_file)
 
-    def parse_into_fields(self):
-        """Description"""
-
-        # self.fields contains parsed fields obtained from yaml file
-        self.fields = ATCutils.read_yaml_file(self.yaml_file)
 
     def render_template(self, template_type):
         """Render template with data in it

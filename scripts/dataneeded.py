@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 from atcutils import ATCutils
-
+from atcentity import ATCEntity
+from loggingpolicy import LoggingPolicy
 from jinja2 import Environment, FileSystemLoader
 
 import os
@@ -10,15 +11,15 @@ import os
 ############################# Data Needed #####################################
 ###############################################################################
 
-ATCconfig = ATCutils.read_yaml_file("config.yml")
+ATCconfig = ATCEntity.ATCconfig
 
 
-class DataNeeded:
+class DataNeeded(ATCEntity):
     """Class for the Data Needed entity"""
 
     def __init__(self, yaml_file, apipath=None, auth=None, space=None):
         """Init method"""
-
+        super(ATCEntity,self).__init__()
         # Init vars (unnecessary?)
         self.title = None
         self.description = None
@@ -52,7 +53,11 @@ class DataNeeded:
         """Fill the fields with values. Put None if key not found"""
         self.title = self.dn_fields.get("title")
         self.description = self.dn_fields.get("description")
-        self.loggingpolicy = self.dn_fields.get("loggingpolicy")
+        lp_names = self.dn_fields.get("loggingpolicy")
+        self.lp_names = lp_names
+        if isinstance(lp_names, str):
+            lp_names = [lp_names]
+        self.loggingpolicy = [LoggingPolicy(filename + '.yml') for filename in lp_names]
         self.platform = self.dn_fields.get("platform")
         self.type = self.dn_fields.get("type")
         self.channel = self.dn_fields.get("channel")
@@ -79,7 +84,7 @@ class DataNeeded:
             template = env\
                 .get_template('markdown_dataneeded_template.md.j2')
 
-            logging_policies = self.dn_fields.get("loggingpolicy")
+            logging_policies = self.loggingpolicy
 
             if isinstance(logging_policies, str):
                 logging_policies = [logging_policies]
@@ -105,7 +110,7 @@ class DataNeeded:
             self.dn_fields.update({'description': self.dn_fields
                                    .get('description').strip()})
 
-            logging_policies = self.dn_fields.get("loggingpolicy")
+            logging_policies = self.lp_names
 
             if not logging_policies:
                 logging_policies = ["None", ]

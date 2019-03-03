@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from atcutils import ATCutils
-
+from atcentity import ATCEntity
 from jinja2 import Environment, FileSystemLoader
 
 import os
@@ -11,15 +11,14 @@ from pdb import set_trace as bp
 # ########################### Logging Policy ################################ #
 # ########################################################################### #
 
-ATCconfig = ATCutils.read_yaml_file("config.yml")
 
 
-class LoggingPolicy:
+class LoggingPolicy(ATCEntity):
     """Class for the Logging Policy entity"""
 
     def __init__(self, yaml_file):
         """Init method"""
-
+        super(ATCEntity, self).__init__()
         # Init vars
         self.yaml_file = yaml_file
         # The name of the directory containing future markdown LogginPolicy
@@ -28,11 +27,6 @@ class LoggingPolicy:
         # Init methods
         self.parse_into_fields(self.yaml_file)
 
-    def parse_into_fields(self, yaml_file):
-        """Description"""
-
-        # self.fields contains parsed fields obtained from yaml file
-        self.fields = ATCutils.read_yaml_file(self.yaml_file)
 
     def render_template(self, template_type):
         """Description
@@ -59,7 +53,7 @@ class LoggingPolicy:
                 'confluence_loggingpolicy_template.html.j2')
 
         self.fields.update(
-            {'confluence_viewpage_url': ATCconfig.get('confluence_viewpage_url')})
+            {'confluence_viewpage_url': ATCEntity.ATCconfig.get('confluence_viewpage_url')})
 
         # get rid of newline to not mess with table in md
         self.fields.update(

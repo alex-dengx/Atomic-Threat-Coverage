@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from atcutils import ATCutils
-
+from atcentity import ATCEntity
 from jinja2 import Environment, FileSystemLoader
 
 import os
@@ -10,15 +10,14 @@ import os
 # ########################### Response Action ############################### #
 # ########################################################################### #
 
-ATCconfig = ATCutils.read_yaml_file("config.yml")
 
 
-class ResponseAction:
+class ResponseAction(ATCEntity):
     """Class for the Playbook Actions entity"""
 
     def __init__(self, yaml_file, apipath=None, auth=None, space=None):
         """Init method"""
-
+        super(ATCEntity,self).__init__()
         # Init vars
         self.yaml_file = yaml_file
         # The name of the directory containing future markdown LogginPolicy
@@ -31,10 +30,7 @@ class ResponseAction:
         # Init methods
         self.parse_into_fields(self.yaml_file)
 
-    def parse_into_fields(self, yaml_file):
-        """Description"""
 
-        self.ra_parsed_file = ATCutils.read_yaml_file(yaml_file)
 
     def render_template(self, template_type):
         """Description
@@ -57,8 +53,8 @@ class ResponseAction:
                 'markdown_responseaction_template.md.j2'
             )
 
-            self.ra_parsed_file.update(
-                {'description': self.ra_parsed_file
+            self.fields.update(
+                {'description': self.fields
                     .get('description').strip()}
             )
 
@@ -67,10 +63,10 @@ class ResponseAction:
                 'confluence_responseaction_template.html.j2'
             )
 
-            self.ra_parsed_file.update(
-                {'confluence_viewpage_url': ATCconfig.get('confluence_viewpage_url')})
+            self.fields.update(
+                {'confluence_viewpage_url': ATCEntity.ATCconfig.get('confluence_viewpage_url')})
 
-            linked_ra = self.ra_parsed_file.get("linked_ra")
+            linked_ra = self.fields.get("linked_ra")
 
             if linked_ra:
                 linked_ra_with_id = []
@@ -84,21 +80,21 @@ class ResponseAction:
                     ra = (ra, linked_ra_id)
                     linked_ra_with_id.append(ra)
 
-                self.ra_parsed_file.update(
+                self.fields.update(
                     {'linkedra': linked_ra_with_id}
                 )
 
-            self.ra_parsed_file.update(
-                {'description': self.ra_parsed_file.get('description').strip()}
+            self.fields.update(
+                {'description': self.fields.get('description').strip()}
             )
 
-            self.ra_parsed_file.update(
-                {'workflow': self.ra_parsed_file.get('workflow') + '  \n\n.'}
+            self.fields.update(
+                {'workflow': self.fields.get('workflow') + '  \n\n.'}
             )
 
-        self.content = template.render(self.ra_parsed_file)
+        self.content = template.render(self.fields)
 
-    def save_markdown_file(self, atc_dir=ATCconfig.get('md_name_of_root_directory')):
+    def save_markdown_file(self, atc_dir=ATCEntity.ATCconfig.get('md_name_of_root_directory')):
         """Write content (md template filled with data) to a file"""
 
         base = os.path.basename(self.yaml_file)

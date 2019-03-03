@@ -349,3 +349,4 @@ class PopulateConfluence:
                 traceback.print_exc(file=sys.stdout)
                 print('-' * 60)
         print("Response Playbooks populated!")
+

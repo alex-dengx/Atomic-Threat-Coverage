@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-
-from atcutils import ATCutils
-
 from jinja2 import Environment, FileSystemLoader
 from attack_mapping import te_mapping, ta_mapping
+from  atcutils import ATCutils
+from atcentity import ATCEntity
 
 import os
 import re
@@ -12,15 +11,14 @@ import re
 # ########################### Response Playboo ############################## #
 # ########################################################################### #
 
-ATCconfig = ATCutils.read_yaml_file("config.yml")
 
 
-class ResponsePlaybook:
+class ResponsePlaybook(ATCEntity):
     """Class for the Playbook Actions entity"""
 
     def __init__(self, yaml_file, apipath=None, auth=None, space=None):
         """Init method"""
-
+        super(ATCEntity,self).__init__()
         # Init vars
         self.yaml_file = yaml_file
         # The name of the directory containing future markdown LogginPolicy
@@ -33,10 +31,6 @@ class ResponsePlaybook:
         # Init methods
         self.parse_into_fields(self.yaml_file)
 
-    def parse_into_fields(self, yaml_file):
-        """Description"""
-
-        self.rp_parsed_file = ATCutils.read_yaml_file(yaml_file)
 
     def render_template(self, template_type):
         """Description
@@ -65,7 +59,7 @@ class ResponsePlaybook:
             technique_re = re.compile(r'attack\.t\d{1,5}$')
             other_tags = []
 
-            for tag in self.rp_parsed_file.get('tags'):
+            for tag in self.fields.get('tags'):
                 if tactic_re.match(tag):
                     tactic.append(ta_mapping.get(tag))
                 elif technique_re.match(tag):
@@ -74,9 +68,9 @@ class ResponsePlaybook:
                 else:
                     other_tags.append(tag)
 
-            self.rp_parsed_file.update({'tactics': tactic})
-            self.rp_parsed_file.update({'techniques': technique})
-            self.rp_parsed_file.update({'other_tags': other_tags})
+            self.fields.update({'tactics': tactic})
+            self.fields.update({'techniques': technique})
+            self.fields.update({'other_tags': other_tags})
 
             identification = []
             containment = []
@@ -94,7 +88,7 @@ class ResponsePlaybook:
             # error handling for playbooks with empty stages
             for stage_name, stage_list in stages:
                 try:
-                    for task in self.rp_parsed_file.get(stage_name):
+                    for task in self.fields.get(stage_name):
                         action = ATCutils.read_yaml_file(
                             '../response_actions/' + task + '.yml'
                         )
@@ -109,10 +103,10 @@ class ResponsePlaybook:
             stages = [(stage_name.replace('_', ' ').capitalize(),
                        stage_list) for stage_name, stage_list in stages]
 
-            self.rp_parsed_file.update({'stages': stages})
+            self.fields.update({'stages': stages})
 
-            self.rp_parsed_file.update(
-                {'description': self.rp_parsed_file
+            self.fields.update(
+                {'description': self.fields
                     .get('description').strip()}
             )
 
@@ -121,8 +115,8 @@ class ResponsePlaybook:
                 'confluence_responseplaybook_template.html.j2'
             )
 
-            self.rp_parsed_file.update(
-                {'confluence_viewpage_url': ATCconfig.get('confluence_viewpage_url')})
+            self.fields.update(
+                {'confluence_viewpage_url': ATCEntity.ATCconfig.get('confluence_viewpage_url')})
 
             tactic = []
             tactic_re = re.compile(r'attack\.\w\D+$')
@@ -130,7 +124,7 @@ class ResponsePlaybook:
             technique_re = re.compile(r'attack\.t\d{1,5}$')
             other_tags = []
 
-            for tag in self.rp_parsed_file.get('tags'):
+            for tag in self.fields.get('tags'):
                 if tactic_re.match(tag):
                     tactic.append(ta_mapping.get(tag))
                 elif technique_re.match(tag):
@@ -139,9 +133,9 @@ class ResponsePlaybook:
                 else:
                     other_tags.append(tag)
 
-            self.rp_parsed_file.update({'tactics': tactic})
-            self.rp_parsed_file.update({'techniques': technique})
-            self.rp_parsed_file.update({'other_tags': other_tags})
+            self.fields.update({'tactics': tactic})
+            self.fields.update({'techniques': technique})
+            self.fields.update({'other_tags': other_tags})
 
             # get links to response action
 
@@ -159,7 +153,7 @@ class ResponsePlaybook:
 
             for stage_name, stage_list in stages:
                 try:
-                    for task in self.rp_parsed_file.get(stage_name):
+                    for task in self.fields.get(stage_name):
                         action = ATCutils.read_yaml_file(
                             '../response_actions/' + task + '.yml'
                         )
@@ -183,7 +177,7 @@ class ResponsePlaybook:
             stages = [(stage_name.replace('_', ' ').capitalize(), stage_list)
                       for stage_name, stage_list in stages]
 
-            self.rp_parsed_file.update({'stages_with_id': stages})
+            self.fields.update({'stages_with_id': stages})
 
             # get descriptions for response actions
 
@@ -203,7 +197,7 @@ class ResponsePlaybook:
             # error handling for playbooks with empty stages
             for stage_name, stage_list in stages:
                 try:
-                    for task in self.rp_parsed_file.get(stage_name):
+                    for task in self.fields.get(stage_name):
                         action = ATCutils.read_yaml_file(
                             '../response_actions/' + task + '.yml')
                         stage_list.append(
@@ -217,19 +211,19 @@ class ResponsePlaybook:
             stages = [(stage_name.replace('_', ' ').capitalize(), stage_list)
                       for stage_name, stage_list in stages]
 
-            self.rp_parsed_file.update({'stages': stages})
-            self.rp_parsed_file.update(
+            self.fields.update({'stages': stages})
+            self.fields.update(
                 {'workflow':
-                 self.rp_parsed_file.get('workflow') + '    \n\n.'
+                 self.fields.get('workflow') + '    \n\n.'
                  }
             )
-            self.rp_parsed_file.update(
-                {'description': self.rp_parsed_file
+            self.fields.update(
+                {'description': self.fields
                     .get('description').strip()}
             )
 
         # Render
-        self.content = template.render(self.rp_parsed_file)
+        self.content = template.render(self.fields)
 
     def save_markdown_file(self, atc_dir='../Atomic_Threat_Coverage/'):
         """Write content (md template filled with data) to a file"""

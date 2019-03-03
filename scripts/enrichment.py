@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from atcutils import ATCutils
-
+from atcentity import ATCEntity
 from jinja2 import Environment, FileSystemLoader
 
 import os
@@ -13,12 +13,12 @@ import os
 ATCconfig = ATCutils.read_yaml_file("config.yml")
 
 
-class Enrichment:
+class Enrichment(ATCEntity):
     """Class for the Enrichments entity"""
 
     def __init__(self, yaml_file, apipath=None, auth=None, space=None):
         """Init method"""
-
+        super(ATCEntity,self).__init__()
         # Init vars
         self.yaml_file = yaml_file
         # The name of the directory containing future markdown LogginPolicy
@@ -31,10 +31,6 @@ class Enrichment:
         # Init methods
         self.parse_into_fields(self.yaml_file)
 
-    def parse_into_fields(self, yaml_file):
-        """Description"""
-
-        self.en_parsed_file = ATCutils.read_yaml_file(yaml_file)
 
     def render_template(self, template_type):
         """Description
@@ -55,8 +51,8 @@ class Enrichment:
         if template_type == "markdown":
             template = env.get_template('markdown_enrichments_template.md.j2')
 
-            self.en_parsed_file.update(
-                {'description': self.en_parsed_file
+            self.fields.update(
+                {'description': self.fields
                     .get('description').strip()}
             )
         elif template_type == "confluence":
@@ -64,10 +60,10 @@ class Enrichment:
                 'confluence_enrichments_template.html.j2'
             )
 
-            self.en_parsed_file.update(
+            self.fields.update(
                 {'confluence_viewpage_url': ATCconfig.get('confluence_viewpage_url')})
 
-            data_needed = self.en_parsed_file.get('data_needed')
+            data_needed = self.fields.get('data_needed')
             if data_needed:
                 data_needed_with_id = []
                 for dn in data_needed:
@@ -77,11 +73,11 @@ class Enrichment:
                     dn = (dn, data_needed_id)
                     data_needed_with_id.append(dn)
 
-                self.en_parsed_file.update(
+                self.fields.update(
                     {'data_needed': data_needed_with_id}
                 )
 
-            data_to_enrich = self.en_parsed_file.get('data_to_enrich')
+            data_to_enrich = self.fields.get('data_to_enrich')
             if data_to_enrich:
                 data_to_enrich_with_id = []
                 for de in data_to_enrich:
@@ -91,11 +87,11 @@ class Enrichment:
                     de = (de, data_to_enrich_id)
                     data_to_enrich_with_id.append(de)
 
-                self.en_parsed_file.update(
+                self.fields.update(
                     {'data_to_enrich': data_to_enrich_with_id}
                 )
 
-            requirements = self.en_parsed_file.get('requirements')
+            requirements = self.fields.get('requirements')
             if requirements:
                 requirements_with_id = []
                 for req in requirements:
@@ -105,16 +101,16 @@ class Enrichment:
                     req = (req, requirements_id)
                     requirements_with_id.append(req)
 
-                self.en_parsed_file.update(
+                self.fields.update(
                     {'requirements': requirements_with_id}
                 )
 
-            self.en_parsed_file.update(
-                {'description': self.en_parsed_file
+            self.fields.update(
+                {'description': self.fields
                     .get('description').strip()}
             )
         # Render
-        self.content = template.render(self.en_parsed_file)
+        self.content = template.render(self.fields)
 
     def save_markdown_file(self, atc_dir='../Atomic_Threat_Coverage/'):
         """Write content (md template filled with data) to a file"""
