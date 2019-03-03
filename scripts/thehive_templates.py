@@ -129,7 +129,7 @@ class RPTheHive:
                 self.checkRA(stage)
         try:
             with open(output_file, 'w') as f:
-                f.write(self.case.returnJSON())
+                f.write(self.case.json())
         except OSError:
             print("ERROR: No such directory %s" % os.path.dirname(
                 os.path.abspath(output_file)))
@@ -152,7 +152,7 @@ class RPTheHive:
                     str(rtask.get('title'))
                 task.group = "default"
                 task.description = str(rtask.get('workflow'))
-                self.case.tasks.append(task.returnDictionary())
+                self.case.tasks.append(task.return_dictionary())
                 if rtask.get('linked_ra'):
                     self.task_prefix = float(self.task_prefix)
                     for linked_ra in rtask.get('linked_ra'):
@@ -170,7 +170,7 @@ class RPTheHive:
                             " | " + str(rtask.get('title'))
                         task.group = "default"
                         task.description = str(rtask.get('workflow'))
-                        self.case.tasks.append(task.returnDictionary())
+                        self.case.tasks.append(task.return_dictionary())
 
     def checkSeverity(self, severity):
 

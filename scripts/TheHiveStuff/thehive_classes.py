@@ -69,7 +69,7 @@ class TheHiveCase:
         else:
             return False
 
-    def returnJSON(self):
+    def json(self):
 
         if not self.validate():
             raise Exception("Some fields don't have proper values")
@@ -123,7 +123,7 @@ class TheHiveTask:
         else:
             return False
 
-    def returnDictionary(self):
+    def return_dictionary(self):
 
         if not self.validate():
             raise Exception("Some fields don't have proper values")
