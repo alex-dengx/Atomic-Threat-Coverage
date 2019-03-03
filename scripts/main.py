@@ -2,6 +2,8 @@
 
 from populatemarkdown import PopulateMarkdown
 from populateconfluence import PopulateConfluence
+from thehive_templates import RPTheHive
+from atcutils import ATCutils
 
 # For confluence
 from requests.auth import HTTPBasicAuth
@@ -24,6 +26,8 @@ if __name__ == '__main__':
                        help='Set the output to be a Confluence')
     group.add_argument('-M', '--markdown', action='store_true',
                        help='Set the output to be markdown files')
+    group.add_argument('-T', '--thehive', action='store_true',
+                       help='Generate TheHive Case templates')
 
     # Mutually exclusive group for chosing type of data
     group2 = parser.add_mutually_exclusive_group(required=False)
@@ -71,3 +75,17 @@ if __name__ == '__main__':
                            tg=args.triggers, en=args.enrichment,
                            ra=args.responseactions, rp=args.responseplaybook,
                            init=args.init)
+    elif args.thehive:
+        ATCconfig = ATCutils.read_yaml_file("config.yml")
+        print("HINT: Make sure proper directories are " +
+              "configured in the config.yml")
+        if ATCconfig.get('response_playbooks_dir') and \
+                ATCconfig.get('response_actions_dir') and \
+                ATCconfig.get('thehive_templates_dir'):
+            RPTheHive(
+                inputRP=ATCconfig.get('response_playbooks_dir'),
+                inputRA=ATCconfig.get('response_actions_dir'),
+                output=ATCconfig.get('thehive_templates_dir')
+            )
+        else:
+            print("ERROR: Dirs were not provided in the config.yml")

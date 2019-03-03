@@ -46,6 +46,10 @@ confluence:
 	@echo "[*] Creating conflunce repository and pushing data"
 	@cd scripts && python3 main.py --confluence --auto --init
 
+thehive_templates:
+	@echo "[*] Generating TheHive Case templates based on Response Playbooks"
+	@cd scripts && python3 main.py --thehive
+
 clean:
 	@echo "[*] Cleaning up..."
 	@rm -rf ./Atomic_Threat_Coverage
