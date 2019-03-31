@@ -167,7 +167,7 @@ class RPTheHive:
                         self.task_prefix += 0.1
                         task.title = str(round(self.task_prefix, 1)) + \
                             " | " + str(rtask.get('title'))
-                        task.title = f'{round(self.task_prefix, 1)}"|"{str(rtask.get("title"))}'
+                        task.title = f'{round(self.task_prefix, 1)}|{str(rtask.get("title"))}'
                         task.group = rtask.get('stage','Unknown stage')
                         task.description = str(rtask.get('workflow'))
                         self.case.tasks.append(task.return_dictionary())
@@ -221,5 +221,11 @@ class RPTheHive:
             return THC.PAP.RED
 
 
+ATCconfig = {'response_playbooks_dir': '../response_playbooks/',
+             "response_actions_dir": '../response_actions/',
+             'thehive_templates_dir': './templates/'}
 if __name__ == '__main__':
-    RPTheHive()
+    RPTheHive(                inputRP=ATCconfig.get('response_playbooks_dir'),
+                inputRA=ATCconfig.get('response_actions_dir'),
+                output=ATCconfig.get('thehive_templates_dir')
+)
