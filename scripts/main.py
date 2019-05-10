@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# Python3.5+ check
+import sys
+
+if sys.version_info.major != 3 or sys.version_info.minor < 5:
+    raise Exception("Python3.5+ required!")
+
 from populatemarkdown import PopulateMarkdown
 from populateconfluence import PopulateConfluence
 from thehive_templates import RPTheHive
@@ -20,6 +26,8 @@ import string
 import os
 
 if __name__ == '__main__':
+
+
 
     parser = argparse.ArgumentParser(
         description="""Main function of ATC.
