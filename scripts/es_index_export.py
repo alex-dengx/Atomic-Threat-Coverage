@@ -1,4 +1,11 @@
+#!/usr/bin/env python3
+
+# Python3.5+ check
 import sys
+
+if sys.version_info.major != 3 or sys.version_info.minor < 5:
+    raise Exception("Python3.5+ required!")
+
 import re
 import getopt
 import json
