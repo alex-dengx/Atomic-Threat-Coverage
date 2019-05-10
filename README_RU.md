@@ -1,5 +1,7 @@
 🇬🇧 [English version](README.md)  |   🇵🇱 [Polska wersja](README_PL.md)  
 
+[![Python 3.5](https://img.shields.io/badge/python-3.5-blue.svg)](https://www.python.org/downloads/release/python-350/) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
+
 # ЭТОТ ДОКУМЕНТ УСТАРЕЛ. ОН БУДЕТ ОБНОВЛЕН ДО КОНЦА МАРТА.
 # ЭТОТ ДОКУМЕНТ УСТАРЕЛ. ОН БУДЕТ ОБНОВЛЕН ДО КОНЦА МАРТА.
 # ЭТОТ ДОКУМЕНТ УСТАРЕЛ. ОН БУДЕТ ОБНОВЛЕН ДО КОНЦА МАРТА.
